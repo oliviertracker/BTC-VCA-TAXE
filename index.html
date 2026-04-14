@@ -3,621 +3,350 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VCA Tracker Bitcoin — Flat Tax</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>VCA Bitcoin - Interface Claire</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
+/* --- THÈME CLAIR FORCÉ --- */
 :root {
-  --bg:#f0ede8;--surface:#faf9f7;--surface2:#ebe8e3;
-  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
-  --text:#1c1a17;--text2:#6b6760;--text3:#a09d99;
-  --green:#1a8c62;--green-bg:#e4f5ed;--green-border:#a3ddc2;--green-text:#0d5c3f;
-  --red:#c94040;--red-bg:#fbeaea;--red-border:#e8a8a8;--red-text:#8b2222;
-  --amber:#a0720a;--amber-bg:#fdf3dc;--amber-border:#e8cc80;--amber-text:#7a5200;
-  --accent:#2c6fad;
-  --radius:10px;--radius-sm:7px;
-  --shadow:0 1px 3px rgba(0,0,0,0.07),0 4px 12px rgba(0,0,0,0.04);
+ --bg: #f8f9fa;           /* Fond de page très clair */
+ --surface: #ffffff;      /* Cartes blanches */
+ --surface2: #f1f3f5;     /* Zones de saisie gris très clair */
+ --border: #dee2e6;       /* Bordures fines */
+ --text: #212529;         /* Texte principal noir/gris foncé */
+ --text2: #495057;        /* Texte secondaire */
+ --text3: #868e96;        /* Texte discret */
+ --accent: #0056b3;       /* Bleu pro */
+ --green: #2b8a3e;        /* Vert pour les achats */
+ --green-bg: #ebfbee;
+ --red: #c92a2a;          /* Rouge pour les ventes */
+ --red-bg: #fff5f5;
+ --radius: 12px;
+ --shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
-@media(prefers-color-scheme:dark){:root{
-  --bg:#161514;--surface:#1f1e1c;--surface2:#282624;
-  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.13);
-  --text:#f0ede8;--text2:#9c9893;--text3:#5c5a57;
-  --green:#2db87e;--green-bg:#0d2e1f;--green-border:#1a5c3a;--green-text:#5de0a8;
-  --red:#e06060;--red-bg:#2b1414;--red-border:#6b2828;--red-text:#f0a0a0;
-  --amber:#d4a030;--amber-bg:#2a1e00;--amber-border:#6b4e00;--amber-text:#ffd070;
-  --accent:#5b9fd4;
-  --shadow:0 1px 3px rgba(0,0,0,0.3),0 4px 14px rgba(0,0,0,0.2);
-}}
-*{box-sizing:border-box;margin:0;padding:0;}
-html{font-size:14px;}
-body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1.5rem 4rem;}
-.wrap{max-width:840px;margin:0 auto;}
-#setup-screen{animation:fadeUp .3s ease;}
-.setup-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow);max-width:500px;margin:3.5rem auto 0;}
-.setup-logo{font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:.14em;margin-bottom:1.5rem;}
-.setup-title{font-size:22px;font-weight:500;margin-bottom:.4rem;letter-spacing:-.3px;}
-.setup-sub{font-size:13px;color:var(--text2);margin-bottom:2rem;line-height:1.65;}
-.setup-field{margin-bottom:1.2rem;}
-.setup-field label{font-size:12px;font-weight:500;color:var(--text2);display:block;margin-bottom:6px;}
-.setup-field input,.setup-field select{width:100%;padding:10px 13px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:15px;font-family:'DM Mono',monospace;background:var(--surface2);color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;-moz-appearance:textfield;}
-.setup-field input:focus,.setup-field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(44,111,173,0.12);}
-.setup-hint{font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5;}
-.setup-row{display:flex;gap:10px;}
-.setup-row .setup-field{flex:1;}
-.tax-info{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius-sm);padding:.8rem 1rem;margin-bottom:1.5rem;font-size:12px;color:var(--amber-text);line-height:1.65;}
-.tax-info strong{font-weight:500;}
- 
-#app-screen{display:none;animation:fadeUp .3s ease;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.app-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:12px;}
-.app-title{font-size:21px;font-weight:500;letter-spacing:-.3px;}
-.app-sub{font-size:12px;color:var(--text2);margin-top:3px;font-family:'DM Mono',monospace;}
-.header-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow);}
-.card-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:1rem;font-family:'DM Mono',monospace;}
-.month-heading{font-size:18px;font-weight:500;margin-bottom:4px;letter-spacing:-.2px;}
-.month-sub{font-size:12px;color:var(--text2);margin-bottom:1.25rem;}
-.month-sub strong{color:var(--accent);font-family:'DM Mono',monospace;font-weight:500;}
-.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin-bottom:1rem;}
-.metric{background:var(--surface2);border-radius:var(--radius-sm);padding:.7rem .9rem;border:1px solid var(--border);}
-.metric.tax{border-color:var(--amber-border);background:var(--amber-bg);}
-.m-label{font-size:11px;color:var(--text3);margin-bottom:5px;font-family:'DM Mono',monospace;}
-.metric.tax .m-label{color:var(--amber-text);opacity:.8;}
-.m-val{font-size:17px;font-weight:500;font-family:'DM Mono',monospace;color:var(--text);}
-.metric.tax .m-val{color:var(--amber);}
-.m-val.pos{color:var(--green);}
-.m-val.neg{color:var(--red);}
-.input-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;}
-.field{flex:1;min-width:160px;}
-label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px;font-weight:500;}
-input[type=number]{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Mono',monospace;background:var(--surface2);color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;-moz-appearance:textfield;}
-input[type=number]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(44,111,173,0.12);}
-.btn{padding:8px 16px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);transition:background .12s;white-space:nowrap;}
-.btn:hover{background:var(--surface2);}
-.btn:active{transform:scale(0.98);}
-.btn.primary{background:var(--accent);border-color:transparent;color:#fff;}
-.btn.primary:hover{opacity:.9;}
-.btn.sm{padding:5px 11px;font-size:12px;}
-.btn.danger{color:var(--red);border-color:var(--red-border);}
-.btn.danger:hover{background:var(--red-bg);}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
-.action-box{border-radius:var(--radius-sm);padding:1rem 1.1rem;margin-bottom:1rem;border:1px solid;animation:fadeUp .2s ease;}
-.action-box.buy{background:var(--green-bg);border-color:var(--green-border);}
-.action-box.sell{background:var(--red-bg);border-color:var(--red-border);}
-.action-box.hold{background:var(--surface2);border-color:var(--border2);}
-.action-tag{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-family:'DM Mono',monospace;}
-.action-tag.buy{color:var(--green-text);}
-.action-tag.sell{color:var(--red-text);}
-.action-tag.hold{color:var(--text3);}
-.action-amount{font-size:28px;font-weight:500;font-family:'DM Mono',monospace;margin-bottom:5px;}
-.action-amount.buy{color:var(--green);}
-.action-amount.sell{color:var(--red);}
-.action-amount.hold{color:var(--text3);}
-.action-sub{font-size:12px;color:var(--text2);line-height:1.6;}
-.tax-block{margin-top:12px;border-top:1px solid var(--amber-border);padding-top:10px;}
-.tax-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-family:'DM Mono',monospace;margin-bottom:4px;}
-.tax-row .label{color:var(--text3);}
-.tax-row .val{color:var(--text2);}
-.tax-row.total .label{color:var(--amber-text);font-weight:500;}
-.tax-row.total .val{color:var(--amber);font-weight:500;font-size:14px;}
-.tax-row.net .label{color:var(--green-text);font-weight:500;}
-.tax-row.net .val{color:var(--green);font-weight:500;font-size:14px;}
-.tax-row.net-loss .label{color:var(--text2);font-weight:500;}
-.tax-row.net-loss .val{color:var(--text2);font-weight:500;font-size:14px;}
-.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-table{width:100%;font-size:12px;border-collapse:collapse;min-width:600px;}
-th{text-align:left;padding:6px 7px;border-bottom:1px solid var(--border2);color:var(--text3);font-weight:500;font-size:11px;font-family:'DM Mono',monospace;white-space:nowrap;}
-td{padding:6px 7px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:12px;color:var(--text);}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:var(--surface2);}
-.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500;font-family:'DM Mono',monospace;}
-.badge.buy{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border);}
-.badge.sell{background:var(--red-bg);color:var(--red-text);border:1px solid var(--red-border);}
-.badge.hold{background:var(--surface2);color:var(--text3);border:1px solid var(--border2);}
-.chart-wrap{position:relative;width:100%;height:210px;}
-.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;}
-.legend-dot{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle;}
-.empty-state{text-align:center;padding:2.5rem 1rem;color:var(--text3);font-size:13px;line-height:1.7;}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:999;white-space:nowrap;}
-.toast.show{transform:translateX(-50%) translateY(0);}
-.disclaimer{font-size:11px;color:var(--text3);text-align:center;margin-top:1.5rem;line-height:1.6;}
-.section-title{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:.75rem;display:flex;align-items:center;gap:8px;}
-.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-family:'DM Mono',monospace;background:var(--amber-bg);color:var(--amber-text);border:1px solid var(--amber-border);}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+   font-family: 'DM Sans', sans-serif;
+   background-color: var(--bg);
+   color: var(--text);
+   padding: 2rem 1rem;
+   line-height: 1.5;
+}
+
+.wrap { max-width: 900px; margin: 0 auto; }
+
+/* TITRE */
+.header { margin-bottom: 2rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
+.header h1 { font-size: 24px; color: var(--text); }
+.header p { color: var(--text3); font-size: 14px; }
+
+/* CARTES */
+.card {
+   background: var(--surface);
+   border: 1px solid var(--border);
+   border-radius: var(--radius);
+   padding: 1.5rem;
+   margin-bottom: 1.5rem;
+   box-shadow: var(--shadow);
+}
+
+/* GRILLE DE SAISIE */
+.input-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+   gap: 15px;
+   margin-bottom: 1.5rem;
+}
+
+.field { display: flex; flex-direction: column; }
+.field label { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--text2); text-transform: uppercase; }
+.field input {
+   padding: 12px;
+   border: 2px solid var(--border);
+   border-radius: 8px;
+   font-family: 'DM Mono', monospace;
+   font-size: 15px;
+   background: var(--surface);
+   color: var(--text);
+}
+.field input:focus { border-color: var(--accent); outline: none; background: #fff; }
+.field.highlight { border: 2px solid var(--accent); padding: 10px; border-radius: 10px; background: #f0f7ff; }
+
+/* BOUTONS */
+.btn-row { display: flex; gap: 10px; margin-top: 10px; }
+.btn {
+   padding: 12px 24px;
+   border-radius: 8px;
+   font-weight: 700;
+   cursor: pointer;
+   border: none;
+   transition: 0.2s;
+}
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: #004494; }
+.btn-outline { background: white; border: 2px solid var(--border); color: var(--text2); }
+
+/* ACTIONS (ACHAT/VENTE) */
+.action-box { padding: 1.5rem; border-radius: 10px; margin-top: 1rem; border-left: 6px solid; }
+.action-box.buy { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+.action-box.sell { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+.action-box h3 { font-size: 18px; margin-bottom: 5px; }
+
+/* MÉTRIQUES */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 1.5rem; }
+.stat-card { background: white; border: 1px solid var(--border); padding: 1rem; border-radius: 10px; text-align: center; }
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; margin-bottom: 5px; font-weight: 700; }
+.stat-val { font-family: 'DM Mono'; font-size: 18px; font-weight: 700; }
+
+/* GRAPHIQUE */
+.chart-container { height: 350px; margin-top: 10px; }
+
+/* TABLEAU */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-family: 'DM Mono'; font-size: 13px; }
+th { text-align: left; padding: 12px; border-bottom: 2px solid var(--border); color: var(--text3); }
+td { padding: 12px; border-bottom: 1px solid var(--border); }
+tr:hover { background: #f8f9fa; }
+
 </style>
 </head>
 <body>
+
 <div class="wrap">
- 
-<!-- SETUP -->
-<div id="setup-screen">
-  <div class="setup-card">
-    <div class="setup-logo">VCA Tracker · Bitcoin · France</div>
-    <div class="setup-title">Configuration initiale</div>
-    <div class="setup-sub">Définis tes paramètres une seule fois. Tu pourras commencer quand tu veux.</div>
- 
-    <div class="tax-info">
-      <strong>Flat tax (PFU) intégrée :</strong> En France, les plus-values crypto sont imposées à <strong>30 %</strong> (12,8 % IR + 17,2 % prélèvements sociaux). Ce tracker calcule automatiquement la taxe estimée sur chaque vente et le net après impôt.
-    </div>
- 
-    <div class="setup-field">
-      <label>Nom du tracker (optionnel)</label>
-      <input type="text" id="cfg-name" placeholder="ex. Mon portefeuille BTC" maxlength="40">
-    </div>
- 
-    <div class="setup-row">
-      <div class="setup-field">
-        <label>Cible de croissance mensuelle (€)</label>
-        <input type="number" id="cfg-target" placeholder="ex. 50" min="1" step="1">
-        <div class="setup-hint">Montant dont ton portefeuille doit croître chaque mois.</div>
-      </div>
-      <div class="setup-field">
-        <label>Taux flat tax (%)</label>
-        <input type="number" id="cfg-tax" value="30" min="0" max="100" step="0.1">
-        <div class="setup-hint">PFU France = 30 %. Modifiable si besoin.</div>
-      </div>
-    </div>
- 
-    <div class="setup-row">
-      <div class="setup-field">
-        <label>Devise</label>
-        <select id="cfg-currency">
-          <option value="EUR">EUR — €</option>
-          <option value="USD">USD — $</option>
-          <option value="CHF">CHF — Fr</option>
-          <option value="GBP">GBP — £</option>
-        </select>
-      </div>
-      <div class="setup-field">
-        <label>Mois de départ (optionnel)</label>
-        <input type="month" id="cfg-startmonth" style="font-family:'DM Sans',sans-serif;">
-        <div class="setup-hint">Vide = Mois 1, Mois 2…</div>
-      </div>
-    </div>
- 
-    <button class="btn primary" style="width:100%;padding:11px;font-size:14px;margin-top:.25rem;" onclick="setupDone()">Démarrer le tracker</button>
-  </div>
+   <div class="header">
+       <h1>Mon Pilote VCA Bitcoin</h1>
+       <p>Stratégie : Croissance fixe | Fiscalité : 31,4% | Réserve USDC</p>
+   </div>
+
+   <div class="card">
+       <div class="input-grid">
+           <div class="field">
+               <label>Prix du Bitcoin (€)</label>
+               <input type="number" id="btc-price" placeholder="Ex: 62500">
+           </div>
+           <div class="field">
+               <label>Valeur Portefeuille BTC (€)</label>
+               <input type="number" id="current-val" placeholder="Ex: 1200">
+           </div>
+           <div class="field">
+               <label>Réserve USDC (€)</label>
+               <input type="number" id="current-usdc" placeholder="Ex: 450">
+           </div>
+           <div class="field highlight">
+               <label style="color:var(--accent)">Dépôt du mois (€)</label>
+               <input type="number" id="monthly-deposit" value="50">
+           </div>
+       </div>
+
+       <div id="action-result" style="display:none"></div>
+
+       <div class="btn-row">
+           <button class="btn btn-primary" onclick="calculate()">Calculer l'Action</button>
+           <button id="btn-save" class="btn btn-outline" style="display:none" onclick="saveMonth()">Valider le mois ✓</button>
+       </div>
+   </div>
+
+   <div class="stats">
+       <div class="stat-card">
+           <div class="stat-label">Argent Injecté</div>
+           <div class="stat-val" id="stat-injected">0 €</div>
+       </div>
+       <div class="stat-card">
+           <div class="stat-label">Réserve USDC</div>
+           <div class="stat-val" id="stat-usdc" style="color:var(--accent)">0 €</div>
+       </div>
+       <div class="stat-card">
+           <div class="stat-label">Valeur BTC</div>
+           <div class="stat-val" id="stat-btc">0 €</div>
+       </div>
+       <div class="stat-card" style="background: #e7f5ff; border-color: #74c0fc;">
+           <div class="stat-label">Total Global</div>
+           <div class="stat-val" id="stat-total">0 €</div>
+       </div>
+   </div>
+
+   <div class="card">
+       <div class="stat-label">Performance vs Effort d'Épargne</div>
+       <div class="chart-container">
+           <canvas id="mainChart"></canvas>
+       </div>
+   </div>
+
+   <div class="card">
+       <div class="stat-label">Historique des Opérations</div>
+       <div class="table-wrap">
+           <table>
+               <thead>
+                   <tr>
+                       <th>Mois</th>
+                       <th>Dépôt</th>
+                       <th>Action</th>
+                       <th>Montant</th>
+                       <th>USDC Final</th>
+                       <th>Valeur Totale</th>
+                   </tr>
+               </thead>
+               <tbody id="history-body"></tbody>
+           </table>
+       </div>
+   </div>
 </div>
- 
-<!-- APP -->
-<div id="app-screen">
- 
-  <div class="app-header">
-    <div>
-      <div class="app-title" id="app-title">VCA Tracker</div>
-      <div class="app-sub" id="app-sub">—</div>
-    </div>
-    <div class="header-actions">
-      <button class="btn sm" onclick="exportData()">Exporter</button>
-      <button class="btn sm" onclick="document.getElementById('import-file').click()">Importer</button>
-      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
-      <button class="btn sm danger" onclick="resetAll()">Réinitialiser</button>
-    </div>
-  </div>
- 
-  <!-- Saisie -->
-  <div class="card">
-    <div class="month-heading" id="month-label">Mois 1</div>
-    <div class="month-sub">Cible de valeur à atteindre : <strong id="target-display">—</strong></div>
-    <div class="input-row">
-      <div class="field">
-        <label>Prix actuel du Bitcoin</label>
-        <input type="number" id="btc-price" placeholder="ex. 85 000" min="1" step="100" onkeydown="if(event.key==='Enter')calculate()">
-      </div>
-      <div class="field">
-        <label>Valeur actuelle de ton portefeuille</label>
-        <input type="number" id="current-val" placeholder="0 si premier mois" min="0" step="0.01" onkeydown="if(event.key==='Enter')calculate()">
-      </div>
-    </div>
-    <div id="action-display" style="display:none;"></div>
-    <div class="btn-row">
-      <button class="btn primary" onclick="calculate()">Calculer</button>
-      <button class="btn" id="save-btn" onclick="saveMonth()" style="display:none;">Valider → mois suivant</button>
-    </div>
-  </div>
- 
-  <!-- Métriques portefeuille -->
-  <div class="metric-grid">
-    <div class="metric"><div class="m-label">mois</div><div class="m-val" id="m-month">1</div></div>
-    <div class="metric"><div class="m-label">investi total</div><div class="m-val" id="m-invested">—</div></div>
-    <div class="metric"><div class="m-label">BTC accumulé</div><div class="m-val" id="m-btc">0.000000</div></div>
-    <div class="metric"><div class="m-label">valeur portef.</div><div class="m-val" id="m-portval">—</div></div>
-    <div class="metric"><div class="m-label">perf. brute</div><div class="m-val" id="m-perf">—</div></div>
-  </div>
- 
-  <!-- Métriques fiscales -->
-  <div class="metric-grid">
-    <div class="metric tax"><div class="m-label">prix moyen achat</div><div class="m-val" id="m-avgcost">—</div></div>
-    <div class="metric tax"><div class="m-label">plus-values réalisées</div><div class="m-val" id="m-gains">—</div></div>
-    <div class="metric tax"><div class="m-label">flat tax due (<span id="tax-rate-label">30</span>%)</div><div class="m-val" id="m-taxdue">—</div></div>
-    <div class="metric tax"><div class="m-label">plus-values latentes</div><div class="m-val" id="m-latent">—</div></div>
-    <div class="metric tax"><div class="m-label">taxe latente estimée</div><div class="m-val" id="m-latent-tax">—</div></div>
-  </div>
- 
-  <!-- Historique -->
-  <div class="card">
-    <div class="card-label">Historique</div>
-    <div id="history-area">
-      <div class="empty-state">Aucune entrée pour l'instant.<br>Entre le prix du BTC et valide chaque mois.</div>
-    </div>
-  </div>
- 
-  <!-- Graphique -->
-  <div class="card" id="chart-card" style="display:none;">
-    <div class="card-label">Évolution du portefeuille</div>
-    <div class="chart-wrap"><canvas id="vcaChart"></canvas></div>
-    <div class="legend">
-      <span><span class="legend-dot" style="background:#1a8c62"></span>valeur réelle</span>
-      <span><span class="legend-dot" style="background:#a3ddc2"></span>cible VCA</span>
-      <span><span class="legend-dot" style="background:#5b9fd4"></span>total investi</span>
-    </div>
-  </div>
- 
-  <p class="disclaimer">
-    Données stockées localement · Aucune connexion requise<br>
-    Le calcul fiscal est une estimation indicative basée sur le PFU 30 % (art. 200 A CGI).<br>
-    Consulte un conseiller fiscal pour ta situation personnelle. Actifs volatils — risque de perte en capital.
-  </p>
-</div>
- 
-</div>
-<div class="toast" id="toast"></div>
- 
+
 <script>
-const STORAGE_KEY = 'vca_btc_flattax_v1';
-const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-const MONTHS_SH = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
- 
-let cfg = null;
-let state = null;
-let chartInst = null;
-let pendingAction = null;
- 
-/* ── Storage ── */
-function loadStorage() {
-  try { const r = localStorage.getItem(STORAGE_KEY); if(r){const s=JSON.parse(r);cfg=s.cfg;state=s.state;return true;} } catch(e){}
-  return false;
-}
-function persist() { try{localStorage.setItem(STORAGE_KEY,JSON.stringify({cfg,state}));}catch(e){} }
- 
-/* ── Format ── */
-function sym() { return {EUR:'€',USD:'$',CHF:'Fr',GBP:'£'}[cfg.currency]||'€'; }
-function fmtM(n) {
-  const s=sym(), v=parseFloat(n).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  return (cfg.currency==='EUR'||cfg.currency==='CHF') ? v+' '+s : s+' '+v;
-}
-function fmtI(n) { return Math.round(n).toLocaleString('fr-FR'); }
-function fmtB(n) { return parseFloat(n).toFixed(6); }
-function getLabel(idx) {
-  if(!cfg.startMonth) return 'Mois '+(idx+1);
-  const [y,m]=cfg.startMonth.split('-').map(Number);
-  const d=new Date(y,m-1+idx,1);
-  return MONTHS_FR[d.getMonth()]+' '+d.getFullYear();
-}
-function getShort(idx) {
-  if(!cfg.startMonth) return 'M'+(idx+1);
-  const [y,m]=cfg.startMonth.split('-').map(Number);
-  const d=new Date(y,m-1+idx,1);
-  return MONTHS_SH[d.getMonth()]+' '+String(d.getFullYear()).slice(2);
-}
- 
-/* ── Tax helpers ── */
-// Prix de revient moyen pondéré (PRMP) — méthode légale France crypto
-function avgCostPerBtc() {
-  if(state.btcHeld <= 0) return 0;
-  return state.totalCostBasis / state.btcHeld;
-}
- 
-// Calcul de la plus-value sur une vente
-function computeGain(btcSold, price) {
-  const avgCost = avgCostPerBtc();
-  const salePrice = btcSold * price;
-  const costOfSold = btcSold * avgCost;
-  return salePrice - costOfSold; // positif = plus-value, négatif = moins-value
-}
- 
-function taxAmount(gain) {
-  if(gain <= 0) return 0;
-  return gain * (cfg.taxRate / 100);
-}
- 
-/* ── Setup ── */
-function setupDone() {
-  const target = parseFloat(document.getElementById('cfg-target').value);
-  if(!target||target<=0){showToast('Entre une cible mensuelle valide');return;}
-  const taxRate = parseFloat(document.getElementById('cfg-tax').value)||30;
-  cfg = {
-    name: document.getElementById('cfg-name').value.trim()||'VCA Bitcoin',
-    target, taxRate,
-    currency: document.getElementById('cfg-currency').value,
-    startMonth: document.getElementById('cfg-startmonth').value||''
-  };
-  state = {
-    currentMonthIndex:0,
-    totalInvested:0,
-    btcHeld:0,
-    totalCostBasis:0,  // somme des coûts d'acquisition (pour PRMP)
-    realizedGains:0,   // plus-values réalisées cumulées
-    totalTaxDue:0,     // flat tax cumulée sur ventes
-    history:[]
-  };
-  persist();
-  showApp();
-}
- 
-function showApp() {
-  document.getElementById('setup-screen').style.display='none';
-  document.getElementById('app-screen').style.display='block';
-  if(cfg) document.getElementById('tax-rate-label').textContent=cfg.taxRate;
-  updateUI();
-}
-function showSetup() {
-  document.getElementById('setup-screen').style.display='block';
-  document.getElementById('app-screen').style.display='none';
-}
- 
-/* ── Calculate ── */
+// --- LOGIQUE DE L'APPLICATION ---
+let state = {
+   index: 0,
+   btcHeld: 0,
+   usdcHeld: 0,
+   totalInjected: 0,
+   targetMonthly: 100, // Ta croissance cible
+   taxRate: 31.4,
+   history: []
+};
+
+let chart = null;
+let lastCalc = null;
+
 function calculate() {
-  const price = parseFloat(document.getElementById('btc-price').value);
-  const currentVal = parseFloat(document.getElementById('current-val').value)||0;
-  if(!price||price<=0){showToast('Entre un prix BTC valide');return;}
- 
-  const monthNum = state.currentMonthIndex+1;
-  const targetVal = monthNum*cfg.target;
-  const toInvest = targetVal-currentVal;
- 
-  let taxInfo = null;
- 
-  let cls,tag,amountStr,sub,taxHTML='';
- 
-  if(Math.abs(toInvest)<0.5) {
-    cls='hold';tag='Neutre';
-    amountStr=fmtM(0);
-    sub='Ton portefeuille est exactement à la cible ('+fmtM(targetVal)+'). Rien à faire.';
-  } else if(toInvest>0) {
-    cls='buy';tag='→ Acheter';
-    amountStr='+'+fmtM(toInvest);
-    const btcToBuy=toInvest/price;
-    sub='Achète '+fmtB(btcToBuy)+' BTC à '+fmtI(price)+' '+sym()+'/BTC pour atteindre la cible de '+fmtM(targetVal)+'.';
-  } else {
-    // VENTE — calcul fiscal
-    cls='sell';tag='→ Vendre';
-    const toSellEur=Math.abs(toInvest);
-    const btcToSell=toSellEur/price;
-    amountStr='−'+fmtM(toSellEur);
-    sub='Ton portefeuille dépasse la cible de '+fmtM(toSellEur)+' — vends '+fmtB(btcToSell)+' BTC.';
- 
-    const gain=computeGain(btcToSell,price);
-    const tax=taxAmount(gain);
-    const netAfterTax=toSellEur-tax;
-    taxInfo={gain,tax,netAfterTax,btcToSell,toSellEur};
- 
-    if(gain>0) {
-      taxHTML=`<div class="tax-block">
-        <div class="tax-row"><span class="label">Prix de revient moyen (PRMP)</span><span class="val">${fmtM(avgCostPerBtc())} /BTC</span></div>
-        <div class="tax-row"><span class="label">Prix de vente</span><span class="val">${fmtM(price)} /BTC</span></div>
-        <div class="tax-row"><span class="label">Plus-value brute sur cette vente</span><span class="val">+${fmtM(gain)}</span></div>
-        <div class="tax-row total"><span class="label">Flat tax due (${cfg.taxRate}%)</span><span class="val">−${fmtM(tax)}</span></div>
-        <div class="tax-row net"><span class="label">Net encaissé après impôt</span><span class="val">${fmtM(netAfterTax)}</span></div>
-      </div>`;
-    } else {
-      taxHTML=`<div class="tax-block">
-        <div class="tax-row"><span class="label">Prix de revient moyen (PRMP)</span><span class="val">${fmtM(avgCostPerBtc())} /BTC</span></div>
-        <div class="tax-row"><span class="label">Moins-value sur cette vente</span><span class="val" style="color:var(--red)">${fmtM(gain)}</span></div>
-        <div class="tax-row net-loss"><span class="label">Aucune taxe (moins-value)</span><span class="val">0,00 ${sym()}</span></div>
-      </div>`;
-    }
-  }
- 
-  pendingAction={price,currentVal,targetVal,toInvest,taxInfo};
- 
-  const box=document.getElementById('action-display');
-  box.style.display='block';
-  box.innerHTML=`<div class="action-box ${cls}">
-    <div class="action-tag ${cls}">${tag}</div>
-    <div class="action-amount ${cls}">${amountStr}</div>
-    <div class="action-sub">${sub}</div>
-    ${taxHTML}
-  </div>`;
-  document.getElementById('save-btn').style.display='inline-block';
+   const price = parseFloat(document.getElementById('btc-price').value);
+   const btcVal = parseFloat(document.getElementById('current-val').value) || 0;
+   const usdc = parseFloat(document.getElementById('current-usdc').value) || 0;
+   const deposit = parseFloat(document.getElementById('monthly-deposit').value) || 0;
+
+   if(!price) { alert("Indiquez le prix du Bitcoin"); return; }
+
+   const target = (state.index + 1) * state.targetMonthly;
+   const diff = target - btcVal;
+   const res = document.getElementById('action-result');
+   res.style.display = "block";
+
+   let usdcTotal = usdc + deposit;
+
+   if (diff > 0) { // ACHAT
+       res.className = "action-box buy";
+       const possible = usdcTotal >= diff;
+       res.innerHTML = `<h3>🛒 ACTION : ACHETER BTC</h3>
+                       <p>Il faut ajouter <b>${diff.toFixed(2)}€</b> de Bitcoin pour atteindre ta cible.</p>
+                       <p><small>${possible ? "Ta réserve USDC couvre l'achat." : "⚠️ Réserve insuffisante, prévois un complément."}</small></p>`;
+   } else if (diff < 0) { // VENTE
+       res.className = "action-box sell";
+       const aVendre = Math.abs(diff);
+       const net = aVendre * (1 - (state.taxRate/100));
+       res.innerHTML = `<h3>💰 ACTION : VENDRE BTC</h3>
+                       <p>Ton portefeuille dépasse la cible. Vends <b>${aVendre.toFixed(2)}€</b> de BTC.</p>
+                       <p>Après taxe de 31,4%, tu récupères <b>${net.toFixed(2)}€</b> dans ta réserve USDC.</p>`;
+   } else {
+       res.className = "action-box";
+       res.innerHTML = "<h3>✅ RIEN À FAIRE</h3><p>Tu es pile sur la cible.</p>";
+   }
+
+   document.getElementById('btn-save').style.display = "inline-block";
+   lastCalc = { price, diff, deposit, usdc, btcVal };
 }
- 
-/* ── Save ── */
+
 function saveMonth() {
-  if(!pendingAction) return;
-  const {price,targetVal,toInvest,taxInfo}=pendingAction;
-  const btcChange=toInvest/price;
- 
-  let gainThisMonth=0, taxThisMonth=0;
- 
-  if(toInvest>0) {
-    // Achat : augmente le coût total de base (PRMP)
-    state.btcHeld+=btcChange;
-    state.totalCostBasis+=toInvest;
-    state.totalInvested+=toInvest;
-  } else if(toInvest<0) {
-    // Vente
-    const btcSold=Math.abs(btcChange);
-    const avgCost=avgCostPerBtc();
-    gainThisMonth=taxInfo?taxInfo.gain:computeGain(btcSold,price);
-    taxThisMonth=taxAmount(gainThisMonth);
-    // Réduire la base de coût proportionnellement
-    state.totalCostBasis-=btcSold*avgCost;
-    state.btcHeld+=btcChange; // btcChange est négatif
-    state.realizedGains+=gainThisMonth;
-    state.totalTaxDue+=taxThisMonth;
-  }
- 
-  const realVal=state.btcHeld*price;
- 
-  state.history.push({
-    idx:state.currentMonthIndex,
-    label:getLabel(state.currentMonthIndex),
-    short:getShort(state.currentMonthIndex),
-    price, targetVal,
-    invested:toInvest,
-    btcHeld:state.btcHeld,
-    portVal:realVal,
-    totalInvested:state.totalInvested,
-    gainThisMonth,
-    taxThisMonth,
-    avgCostAtTime:avgCostPerBtc()
-  });
- 
-  state.currentMonthIndex++;
-  persist();
- 
-  document.getElementById('btc-price').value='';
-  document.getElementById('current-val').value='';
-  document.getElementById('action-display').style.display='none';
-  document.getElementById('save-btn').style.display='none';
-  pendingAction=null;
- 
-  showToast('Mois enregistré ✓');
-  updateUI();
+   if(!lastCalc) return;
+   const { price, diff, deposit, usdc } = lastCalc;
+
+   state.totalInjected += deposit;
+   let pool = usdc + deposit;
+
+   if(diff > 0) { // On a acheté
+       state.btcHeld += (diff / price);
+       state.usdcHeld = pool - diff;
+   } else if(diff < 0) { // On a vendu
+       const net = Math.abs(diff) * (1 - (state.taxRate/100));
+       state.btcHeld -= (Math.abs(diff) / price);
+       state.usdcHeld = pool + net;
+   } else {
+       state.usdcHeld = pool;
+   }
+
+   const currentBtcVal = state.btcHeld * price;
+   state.history.push({
+       label: "Mois " + (state.index + 1),
+       deposit: deposit,
+       action: diff > 0 ? "ACHAT" : (diff < 0 ? "VENTE" : "HOLD"),
+       amount: Math.abs(diff),
+       usdc: state.usdcHeld,
+       total: currentBtcVal + state.usdcHeld,
+       injected: state.totalInjected
+   });
+
+   state.index++;
+   updateUI(currentBtcVal);
+
+   // Reset champs
+   document.getElementById('btc-price').value = "";
+   document.getElementById('current-val').value = currentBtcVal.toFixed(2);
+   document.getElementById('current-usdc').value = state.usdcHeld.toFixed(2);
+   document.getElementById('action-result').style.display = "none";
+   document.getElementById('btn-save').style.display = "none";
 }
- 
-/* ── UI ── */
-function updateUI() {
-  const m=state.currentMonthIndex;
-  const nextTarget=(m+1)*cfg.target;
- 
-  document.getElementById('app-title').textContent=cfg.name;
-  document.getElementById('app-sub').textContent='cible +'+fmtM(cfg.target)+'/mois · flat tax '+cfg.taxRate+'% · '+(cfg.startMonth||'démarrage libre');
-  document.getElementById('month-label').textContent=getLabel(m)+' — Mois '+(m+1);
-  document.getElementById('target-display').textContent=fmtM(nextTarget);
-  document.getElementById('m-month').textContent=m+1;
-  document.getElementById('m-invested').textContent=fmtM(state.totalInvested);
-  document.getElementById('m-btc').textContent=fmtB(state.btcHeld);
- 
-  const last=state.history[state.history.length-1];
-  if(last) {
-    document.getElementById('m-portval').textContent=fmtM(last.portVal);
-    const perf=state.totalInvested>0?(last.portVal-state.totalInvested)/state.totalInvested*100:0;
-    const el=document.getElementById('m-perf');
-    el.textContent=(perf>=0?'+':'')+perf.toFixed(1)+' %';
-    el.className='m-val '+(perf>=0?'pos':'neg');
- 
-    // Latent gains on current holdings
-    const avgC=avgCostPerBtc();
-    const latentGain=state.btcHeld>0?(last.price-avgC)*state.btcHeld:0;
-    const latentTax=taxAmount(latentGain);
- 
-    document.getElementById('m-avgcost').textContent=avgC>0?fmtM(avgC):'—';
-    document.getElementById('m-gains').textContent=state.realizedGains!==0?(state.realizedGains>=0?'+':'')+fmtM(state.realizedGains):'0,00 '+sym();
-    document.getElementById('m-taxdue').textContent=state.totalTaxDue>0?fmtM(state.totalTaxDue):'0,00 '+sym();
-    document.getElementById('m-latent').textContent=(latentGain>=0?'+':'')+fmtM(latentGain);
-    document.getElementById('m-latent').className='m-val '+(latentGain>=0?'pos':'neg');
-    document.getElementById('m-latent-tax').textContent=latentGain>0?'≈'+fmtM(latentTax):'0,00 '+sym();
-  } else {
-    document.getElementById('m-avgcost').textContent='—';
-    document.getElementById('m-gains').textContent='—';
-    document.getElementById('m-taxdue').textContent='—';
-    document.getElementById('m-latent').textContent='—';
-    document.getElementById('m-latent-tax').textContent='—';
-  }
- 
-  renderHistory();
-  renderChart();
+
+function updateUI(btcVal) {
+   document.getElementById('stat-injected').textContent = state.totalInjected.toFixed(2) + " €";
+   document.getElementById('stat-usdc').textContent = state.usdcHeld.toFixed(2) + " €";
+   document.getElementById('stat-btc').textContent = (btcVal || 0).toFixed(2) + " €";
+   document.getElementById('stat-total').textContent = ((btcVal || 0) + state.usdcHeld).toFixed(2) + " €";
+
+   // Table
+   const body = document.getElementById('history-body');
+   body.innerHTML = state.history.slice().reverse().map(h => `
+       <tr>
+           <td><b>${h.label}</b></td>
+           <td>+${h.deposit}€</td>
+           <td>${h.action}</td>
+           <td>${h.amount.toFixed(2)}€</td>
+           <td style="color:var(--accent)">${h.usdc.toFixed(2)}€</td>
+           <td><b>${h.total.toFixed(2)}€</b></td>
+       </tr>
+   `).join('');
+
+   renderChart();
 }
- 
-function renderHistory() {
-  const area=document.getElementById('history-area');
-  if(!state.history.length){
-    area.innerHTML='<div class="empty-state">Aucune entrée pour l\'instant.<br>Entre le prix du BTC et valide chaque mois.</div>';
-    return;
-  }
-  const rows=state.history.slice().reverse().map(h=>{
-    const inv=h.invested;
-    let badge,invStr;
-    if(Math.abs(inv)<0.5){badge='<span class="badge hold">neutre</span>';invStr=fmtM(0);}
-    else if(inv>0){badge='<span class="badge buy">achat</span>';invStr='<span style="color:var(--green)">+'+fmtM(inv)+'</span>';}
-    else{badge='<span class="badge sell">vente</span>';invStr='<span style="color:var(--red)">−'+fmtM(Math.abs(inv))+'</span>';}
-    const perf=h.totalInvested>0?((h.portVal-h.totalInvested)/h.totalInvested*100).toFixed(1):'0.0';
-    const ps=parseFloat(perf)>=0?'color:var(--green)':'color:var(--red)';
-    const taxStr=h.taxThisMonth>0?'<span style="color:var(--amber)">−'+fmtM(h.taxThisMonth)+'</span>':'<span style="color:var(--text3)">—</span>';
-    const gainStr=h.gainThisMonth!==0?(h.gainThisMonth>0?'<span style="color:var(--green)">+'+fmtM(h.gainThisMonth)+'</span>':'<span style="color:var(--red)">'+fmtM(h.gainThisMonth)+'</span>'):'<span style="color:var(--text3)">—</span>';
-    return `<tr>
-      <td style="font-weight:500">${h.label}</td>
-      <td>${fmtI(h.price)} ${sym()}</td>
-      <td>${badge}</td>
-      <td>${invStr}</td>
-      <td>${fmtB(h.btcHeld)}</td>
-      <td>${fmtM(h.portVal)}</td>
-      <td style="${ps}">${parseFloat(perf)>=0?'+':''}${perf}%</td>
-      <td>${gainStr}</td>
-      <td>${taxStr}</td>
-    </tr>`;
-  }).join('');
- 
-  area.innerHTML=`<div class="table-wrap"><table>
-    <thead><tr>
-      <th>Période</th><th>Prix BTC</th><th>Action</th><th>Montant</th><th>BTC total</th><th>Valeur</th><th>Perf.</th><th>+/- value</th><th>Taxe due</th>
-    </tr></thead>
-    <tbody>${rows}</tbody>
-  </table></div>`;
-}
- 
+
 function renderChart() {
-  const card=document.getElementById('chart-card');
-  if(state.history.length<2){card.style.display='none';return;}
-  card.style.display='block';
-  const isDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
-  const gridColor=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';
-  const tickColor=isDark?'#5c5a57':'#a09d99';
-  const labels=state.history.map(h=>h.short);
-  const portVals=state.history.map(h=>parseFloat(h.portVal.toFixed(2)));
-  const targets=state.history.map(h=>Math.round(h.targetVal));
-  const invested=state.history.map(h=>parseFloat(h.totalInvested.toFixed(2)));
-  if(chartInst)chartInst.destroy();
-  chartInst=new Chart(document.getElementById('vcaChart'),{
-    type:'line',
-    data:{labels,datasets:[
-      {label:'Valeur réelle',data:portVals,borderColor:'#1a8c62',backgroundColor:'rgba(26,140,98,0.07)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#1a8c62',tension:0.35,fill:true},
-      {label:'Cible VCA',data:targets,borderColor:'#a3ddc2',borderDash:[4,4],borderWidth:1.5,pointRadius:0,tension:0},
-      {label:'Total investi',data:invested,borderColor:'#5b9fd4',backgroundColor:'rgba(91,159,212,0.05)',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#5b9fd4',tension:0.35,fill:true}
-    ]},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'  '+ctx.dataset.label+' : '+parseFloat(ctx.parsed.y).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' '+sym()}}},
-      scales:{
-        y:{ticks:{callback:v=>fmtI(v)+' '+sym(),font:{size:11,family:'DM Mono'},color:tickColor},grid:{color:gridColor}},
-        x:{ticks:{font:{size:11,family:'DM Mono'},color:tickColor,autoSkip:false,maxRotation:45},grid:{display:false}}
-      }
-    }
-  });
+   const ctx = document.getElementById('mainChart').getContext('2d');
+   if(chart) chart.destroy();
+
+   chart = new Chart(ctx, {
+       type: 'line',
+       data: {
+           labels: state.history.map(h => h.label),
+           datasets: [
+               {
+                   label: 'Valeur Totale (BTC + USDC)',
+                   data: state.history.map(h => h.total),
+                   borderColor: '#0056b3',
+                   backgroundColor: 'rgba(0, 86, 179, 0.05)',
+                   fill: true,
+                   tension: 0.3,
+                   borderWidth: 3
+               },
+               {
+                   label: 'Argent de ta poche (Injecté)',
+                   data: state.history.map(h => h.injected),
+                   borderColor: '#adb5bd',
+                   borderDash: [5, 5],
+                   fill: false,
+                   tension: 0
+               }
+           ]
+       },
+       options: {
+           responsive: true,
+           maintainAspectRatio: false,
+           plugins: { legend: { position: 'bottom' } },
+           scales: {
+               y: { grid: { color: '#f1f3f5' } },
+               x: { grid: { display: false } }
+           }
+       }
+   });
 }
- 
-/* ── Export/Import/Reset ── */
-function exportData(){
-  const b=new Blob([JSON.stringify({cfg,state},null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(b);
-  a.download='vca_btc_flattax_'+new Date().toISOString().slice(0,10)+'.json';
-  a.click();
-  showToast('Sauvegarde exportée ✓');
-}
-function importData(event){
-  const file=event.target.files[0];if(!file)return;
-  const r=new FileReader();
-  r.onload=e=>{
-    try{const d=JSON.parse(e.target.result);if(d.cfg&&d.state){cfg=d.cfg;state=d.state;persist();showApp();showToast('Données importées ✓');}else showToast('Fichier invalide');}
-    catch(err){showToast('Erreur de lecture');}
-  };
-  r.readAsText(file);event.target.value='';
-}
-function resetAll(){
-  if(!confirm('Tout supprimer et recommencer ?'))return;
-  localStorage.removeItem(STORAGE_KEY);cfg=null;state=null;showSetup();showToast('Réinitialisé');
-}
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
- 
-/* ── Init ── */
-if(loadStorage()&&cfg&&state)showApp();
-else showSetup();
 </script>
+
 </body>
 </html>
- 
