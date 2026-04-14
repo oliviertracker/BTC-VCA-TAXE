@@ -3,138 +3,68 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VCA Bitcoin - Interface Claire</title>
+<title>VCA Bitcoin - Flux USDC</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-/* --- THÈME CLAIR FORCÉ --- */
+/* --- STYLE CLAIR & PRO --- */
 :root {
- --bg: #f8f9fa;           /* Fond de page très clair */
- --surface: #ffffff;      /* Cartes blanches */
- --surface2: #f1f3f5;     /* Zones de saisie gris très clair */
- --border: #dee2e6;       /* Bordures fines */
- --text: #212529;         /* Texte principal noir/gris foncé */
- --text2: #495057;        /* Texte secondaire */
- --text3: #868e96;        /* Texte discret */
- --accent: #0056b3;       /* Bleu pro */
- --green: #2b8a3e;        /* Vert pour les achats */
- --green-bg: #ebfbee;
- --red: #c92a2a;          /* Rouge pour les ventes */
- --red-bg: #fff5f5;
- --radius: 12px;
- --shadow: 0 4px 6px rgba(0,0,0,0.05);
+ --bg: #f8f9fa; --surface: #ffffff; --border: #dee2e6;
+ --text: #212529; --text2: #495057; --text3: #868e96;
+ --accent: #2c6fad; --green: #2b8a3e; --green-bg: #ebfbee;
+ --red: #c92a2a; --red-bg: #fff5f5;
+ --radius: 12px; --shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-   font-family: 'DM Sans', sans-serif;
-   background-color: var(--bg);
-   color: var(--text);
-   padding: 2rem 1rem;
-   line-height: 1.5;
-}
-
+body { font-family: 'DM Sans', sans-serif; background-color: var(--bg); color: var(--text); padding: 2rem 1rem; }
 .wrap { max-width: 900px; margin: 0 auto; }
-
-/* TITRE */
-.header { margin-bottom: 2rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
-.header h1 { font-size: 24px; color: var(--text); }
-.header p { color: var(--text3); font-size: 14px; }
-
-/* CARTES */
-.card {
-   background: var(--surface);
-   border: 1px solid var(--border);
-   border-radius: var(--radius);
-   padding: 1.5rem;
-   margin-bottom: 1.5rem;
-   box-shadow: var(--shadow);
-}
-
-/* GRILLE DE SAISIE */
-.input-grid {
-   display: grid;
-   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-   gap: 15px;
-   margin-bottom: 1.5rem;
-}
-
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
+.header { border-bottom: 2px solid var(--border); margin-bottom: 2rem; padding-bottom: 1rem; }
+.input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 1.5rem; }
 .field { display: flex; flex-direction: column; }
-.field label { font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--text2); text-transform: uppercase; }
-.field input {
-   padding: 12px;
-   border: 2px solid var(--border);
-   border-radius: 8px;
-   font-family: 'DM Mono', monospace;
-   font-size: 15px;
-   background: var(--surface);
-   color: var(--text);
-}
-.field input:focus { border-color: var(--accent); outline: none; background: #fff; }
+.field label { font-size: 11px; font-weight: 700; margin-bottom: 6px; color: var(--text2); text-transform: uppercase; }
+input { padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 14px; }
 .field.highlight { border: 2px solid var(--accent); padding: 10px; border-radius: 10px; background: #f0f7ff; }
-
-/* BOUTONS */
-.btn-row { display: flex; gap: 10px; margin-top: 10px; }
-.btn {
-   padding: 12px 24px;
-   border-radius: 8px;
-   font-weight: 700;
-   cursor: pointer;
-   border: none;
-   transition: 0.2s;
-}
+.btn { padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; }
 .btn-primary { background: var(--accent); color: white; }
-.btn-primary:hover { background: #004494; }
-.btn-outline { background: white; border: 2px solid var(--border); color: var(--text2); }
-
-/* ACTIONS (ACHAT/VENTE) */
-.action-box { padding: 1.5rem; border-radius: 10px; margin-top: 1rem; border-left: 6px solid; }
+.btn-outline { background: white; border: 2px solid var(--border); color: var(--text2); margin-left: 10px; }
+.action-box { padding: 1.2rem; border-radius: 10px; margin-top: 1rem; border-left: 6px solid; }
 .action-box.buy { background: var(--green-bg); border-color: var(--green); color: var(--green); }
 .action-box.sell { background: var(--red-bg); border-color: var(--red); color: var(--red); }
-.action-box h3 { font-size: 18px; margin-bottom: 5px; }
-
-/* MÉTRIQUES */
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 1.5rem; }
 .stat-card { background: white; border: 1px solid var(--border); padding: 1rem; border-radius: 10px; text-align: center; }
-.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; margin-bottom: 5px; font-weight: 700; }
-.stat-val { font-family: 'DM Mono'; font-size: 18px; font-weight: 700; }
-
-/* GRAPHIQUE */
-.chart-container { height: 350px; margin-top: 10px; }
-
-/* TABLEAU */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-family: 'DM Mono'; font-size: 13px; }
-th { text-align: left; padding: 12px; border-bottom: 2px solid var(--border); color: var(--text3); }
-td { padding: 12px; border-bottom: 1px solid var(--border); }
-tr:hover { background: #f8f9fa; }
-
+.stat-label { font-size: 10px; color: var(--text3); font-weight: 700; text-transform: uppercase; }
+.stat-val { font-family: 'DM Mono'; font-size: 16px; font-weight: 700; margin-top: 5px; }
+.chart-container { height: 300px; }
+table { width: 100%; border-collapse: collapse; font-family: 'DM Mono'; font-size: 12px; }
+th { text-align: left; padding: 10px; border-bottom: 2px solid var(--border); color: var(--text3); }
+td { padding: 10px; border-bottom: 1px solid var(--border); }
 </style>
 </head>
 <body>
 
 <div class="wrap">
    <div class="header">
-       <h1>Mon Pilote VCA Bitcoin</h1>
-       <p>Stratégie : Croissance fixe | Fiscalité : 31,4% | Réserve USDC</p>
+       <h1>Tracker VCA Bitcoin/USDC</h1>
+       <p>Fiscalité Provisionnée : 31,4% | Unité de compte : USDC</p>
    </div>
 
    <div class="card">
        <div class="input-grid">
-           <div class="field">
-               <label>Prix du Bitcoin (€)</label>
-               <input type="number" id="btc-price" placeholder="Ex: 62500">
+           <div class="field" id="date-setup">
+               <label>Mois de départ</label>
+               <input type="month" id="start-date" value="2026-03">
            </div>
            <div class="field">
-               <label>Valeur Portefeuille BTC (€)</label>
-               <input type="number" id="current-val" placeholder="Ex: 1200">
+               <label>Prix BTC (en USDC)</label>
+               <input type="number" id="btc-price" placeholder="Ex: 65000">
            </div>
            <div class="field">
-               <label>Réserve USDC (€)</label>
-               <input type="number" id="current-usdc" placeholder="Ex: 450">
+               <label>Solde Réserve USDC</label>
+               <input type="number" id="current-usdc" value="0">
            </div>
            <div class="field highlight">
-               <label style="color:var(--accent)">Dépôt du mois (€)</label>
+               <label>Dépôt USDC ce mois</label>
                <input type="number" id="monthly-deposit" value="50">
            </div>
        </div>
@@ -142,66 +72,37 @@ tr:hover { background: #f8f9fa; }
        <div id="action-result" style="display:none"></div>
 
        <div class="btn-row">
-           <button class="btn btn-primary" onclick="calculate()">Calculer l'Action</button>
-           <button id="btn-save" class="btn btn-outline" style="display:none" onclick="saveMonth()">Valider le mois ✓</button>
+           <button class="btn btn-primary" onclick="calculate()">Calculer l'Opération</button>
+           <button id="btn-save" class="btn btn-outline" style="display:none" onclick="saveMonth()">Valider & Actualiser le portefeuille</button>
        </div>
    </div>
 
    <div class="stats">
-       <div class="stat-card">
-           <div class="stat-label">Argent Injecté</div>
-           <div class="stat-val" id="stat-injected">0 €</div>
-       </div>
-       <div class="stat-card">
-           <div class="stat-label">Réserve USDC</div>
-           <div class="stat-val" id="stat-usdc" style="color:var(--accent)">0 €</div>
-       </div>
-       <div class="stat-card">
-           <div class="stat-label">Valeur BTC</div>
-           <div class="stat-val" id="stat-btc">0 €</div>
-       </div>
-       <div class="stat-card" style="background: #e7f5ff; border-color: #74c0fc;">
-           <div class="stat-label">Total Global</div>
-           <div class="stat-val" id="stat-total">0 €</div>
-       </div>
+       <div class="stat-card"><div class="stat-label">Investi (Poche)</div><div class="stat-val" id="stat-injected">0 USDC</div></div>
+       <div class="stat-card"><div class="stat-label">Réserve USDC</div><div class="stat-val" id="stat-usdc" style="color:var(--accent)">0 USDC</div></div>
+       <div class="stat-card"><div class="stat-label">Valeur BTC</div><div class="stat-val" id="stat-btc">0 USDC</div></div>
+       <div class="stat-card" style="background:#f0f7ff"><div class="stat-label">Patrimoine Total</div><div class="stat-val" id="stat-total">0 USDC</div></div>
    </div>
 
-   <div class="card">
-       <div class="stat-label">Performance vs Effort d'Épargne</div>
-       <div class="chart-container">
-           <canvas id="mainChart"></canvas>
-       </div>
-   </div>
+   <div class="card"><div class="chart-container"><canvas id="mainChart"></canvas></div></div>
 
-   <div class="card">
-       <div class="stat-label">Historique des Opérations</div>
-       <div class="table-wrap">
-           <table>
-               <thead>
-                   <tr>
-                       <th>Mois</th>
-                       <th>Dépôt</th>
-                       <th>Action</th>
-                       <th>Montant</th>
-                       <th>USDC Final</th>
-                       <th>Valeur Totale</th>
-                   </tr>
-               </thead>
-               <tbody id="history-body"></tbody>
-           </table>
-       </div>
+   <div class="card" style="overflow-x:auto">
+       <table>
+           <thead><tr><th>Date</th><th>Dépôt</th><th>Opération</th><th>Montant</th><th>USDC Final</th><th>Valeur Totale</th></tr></thead>
+           <tbody id="history-body"></tbody>
+       </table>
    </div>
 </div>
 
 <script>
-// --- LOGIQUE DE L'APPLICATION ---
 let state = {
    index: 0,
    btcHeld: 0,
    usdcHeld: 0,
    totalInjected: 0,
-   targetMonthly: 100, // Ta croissance cible
+   targetStep: 100, // Cible de valeur BTC augmentant de 100 USDC chaque mois
    taxRate: 31.4,
+   startDate: null,
    history: []
 };
 
@@ -210,97 +111,96 @@ let lastCalc = null;
 
 function calculate() {
    const price = parseFloat(document.getElementById('btc-price').value);
-   const btcVal = parseFloat(document.getElementById('current-val').value) || 0;
-   const usdc = parseFloat(document.getElementById('current-usdc').value) || 0;
    const deposit = parseFloat(document.getElementById('monthly-deposit').value) || 0;
+   const currentUsdc = parseFloat(document.getElementById('current-usdc').value) || 0;
 
-   if(!price) { alert("Indiquez le prix du Bitcoin"); return; }
+   if(!price) return alert("Indique le prix actuel du Bitcoin en USDC");
 
-   const target = (state.index + 1) * state.targetMonthly;
-   const diff = target - btcVal;
+   if(!state.startDate) {
+       state.startDate = new Date(document.getElementById('start-date').value);
+       document.getElementById('start-date').disabled = true;
+   }
+
+   const target = (state.index + 1) * state.targetStep;
+   const currentBtcValInUsdc = state.btcHeld * price;
+   const diff = target - currentBtcValInUsdc;
+
    const res = document.getElementById('action-result');
    res.style.display = "block";
+   const potentialUsdc = currentUsdc + deposit;
 
-   let usdcTotal = usdc + deposit;
-
-   if (diff > 0) { // ACHAT
+   if (diff > 0) { // BESOIN D'ACHETER
        res.className = "action-box buy";
-       const possible = usdcTotal >= diff;
-       res.innerHTML = `<h3>🛒 ACTION : ACHETER BTC</h3>
-                       <p>Il faut ajouter <b>${diff.toFixed(2)}€</b> de Bitcoin pour atteindre ta cible.</p>
-                       <p><small>${possible ? "Ta réserve USDC couvre l'achat." : "⚠️ Réserve insuffisante, prévois un complément."}</small></p>`;
-   } else if (diff < 0) { // VENTE
+       const msgManque = diff > potentialUsdc ? `<br><b>⚠️ Attention :</b> Ton solde USDC (${potentialUsdc.toFixed(2)}) est trop bas.` : '';
+       res.innerHTML = `<h3>🛒 ACHAT : ${diff.toFixed(2)} USDC</h3><p>Le tracker va puiser dans ta réserve USDC pour accumuler du BTC.${msgManque}</p>`;
+   } else if (diff < 0) { // BESOIN DE VENDRE
        res.className = "action-box sell";
-       const aVendre = Math.abs(diff);
-       const net = aVendre * (1 - (state.taxRate/100));
-       res.innerHTML = `<h3>💰 ACTION : VENDRE BTC</h3>
-                       <p>Ton portefeuille dépasse la cible. Vends <b>${aVendre.toFixed(2)}€</b> de BTC.</p>
-                       <p>Après taxe de 31,4%, tu récupères <b>${net.toFixed(2)}€</b> dans ta réserve USDC.</p>`;
+       const netVersUsdc = Math.abs(diff) * (1 - (state.taxRate/100));
+       res.innerHTML = `<h3>💰 VENTE : ${Math.abs(diff).toFixed(2)} USDC</h3><p>Vente de BTC. Après provision fiscale, <b>+${netVersUsdc.toFixed(2)} USDC</b> seront ajoutés à ta réserve.</p>`;
    } else {
-       res.className = "action-box";
-       res.innerHTML = "<h3>✅ RIEN À FAIRE</h3><p>Tu es pile sur la cible.</p>";
+       res.innerHTML = "<h3>✅ CIBLE ATTEINTE</h3><p>Aucun mouvement nécessaire ce mois-ci.</p>";
    }
 
    document.getElementById('btn-save').style.display = "inline-block";
-   lastCalc = { price, diff, deposit, usdc, btcVal };
+   lastCalc = { price, diff, deposit, currentUsdc };
 }
 
 function saveMonth() {
-   if(!lastCalc) return;
-   const { price, diff, deposit, usdc } = lastCalc;
+   const { price, diff, deposit, currentUsdc } = lastCalc;
 
    state.totalInjected += deposit;
-   let pool = usdc + deposit;
+   let pool = currentUsdc + deposit;
 
-   if(diff > 0) { // On a acheté
+   if(diff > 0) {
+       // Achat de BTC avec l'USDC
        state.btcHeld += (diff / price);
        state.usdcHeld = pool - diff;
-   } else if(diff < 0) { // On a vendu
+   } else {
+       // Vente de BTC vers l'USDC
        const net = Math.abs(diff) * (1 - (state.taxRate/100));
        state.btcHeld -= (Math.abs(diff) / price);
        state.usdcHeld = pool + net;
-   } else {
-       state.usdcHeld = pool;
    }
 
-   const currentBtcVal = state.btcHeld * price;
+   let currentDate = new Date(state.startDate);
+   currentDate.setMonth(currentDate.getMonth() + state.index);
+   const dateStr = currentDate.toLocaleDateString('fr-FR', {month: 'long', year: 'numeric'});
+
    state.history.push({
-       label: "Mois " + (state.index + 1),
-       deposit: deposit,
-       action: diff > 0 ? "ACHAT" : (diff < 0 ? "VENTE" : "HOLD"),
+       date: dateStr,
+       deposit,
+       action: diff > 0 ? "ACHAT" : "VENTE",
        amount: Math.abs(diff),
        usdc: state.usdcHeld,
-       total: currentBtcVal + state.usdcHeld,
+       total: (state.btcHeld * price) + state.usdcHeld,
        injected: state.totalInjected
    });
 
    state.index++;
-   updateUI(currentBtcVal);
+   updateUI(price);
 
-   // Reset champs
    document.getElementById('btc-price').value = "";
-   document.getElementById('current-val').value = currentBtcVal.toFixed(2);
    document.getElementById('current-usdc').value = state.usdcHeld.toFixed(2);
-   document.getElementById('action-result').style.display = "none";
    document.getElementById('btn-save').style.display = "none";
+   document.getElementById('action-result').style.display = "none";
 }
 
-function updateUI(btcVal) {
-   document.getElementById('stat-injected').textContent = state.totalInjected.toFixed(2) + " €";
-   document.getElementById('stat-usdc').textContent = state.usdcHeld.toFixed(2) + " €";
-   document.getElementById('stat-btc').textContent = (btcVal || 0).toFixed(2) + " €";
-   document.getElementById('stat-total').textContent = ((btcVal || 0) + state.usdcHeld).toFixed(2) + " €";
+function updateUI(lastPrice) {
+   document.getElementById('stat-injected').textContent = state.totalInjected.toFixed(2) + " USDC";
+   document.getElementById('stat-usdc').textContent = state.usdcHeld.toFixed(2) + " USDC";
+   const btcVal = state.btcHeld * (lastPrice || 0);
+   document.getElementById('stat-btc').textContent = btcVal.toFixed(2) + " USDC";
+   document.getElementById('stat-total').textContent = (btcVal + state.usdcHeld).toFixed(2) + " USDC";
 
-   // Table
    const body = document.getElementById('history-body');
    body.innerHTML = state.history.slice().reverse().map(h => `
        <tr>
-           <td><b>${h.label}</b></td>
-           <td>+${h.deposit}€</td>
-           <td>${h.action}</td>
-           <td>${h.amount.toFixed(2)}€</td>
-           <td style="color:var(--accent)">${h.usdc.toFixed(2)}€</td>
-           <td><b>${h.total.toFixed(2)}€</b></td>
+           <td>${h.date}</td>
+           <td>+${h.deposit}</td>
+           <td style="color:${h.action==='ACHAT'?'var(--green)':'var(--red)'}">${h.action}</td>
+           <td>${h.amount.toFixed(2)}</td>
+           <td style="color:var(--accent)">${h.usdc.toFixed(2)}</td>
+           <td><b>${h.total.toFixed(2)}</b></td>
        </tr>
    `).join('');
 
@@ -310,43 +210,18 @@ function updateUI(btcVal) {
 function renderChart() {
    const ctx = document.getElementById('mainChart').getContext('2d');
    if(chart) chart.destroy();
-
    chart = new Chart(ctx, {
        type: 'line',
        data: {
-           labels: state.history.map(h => h.label),
+           labels: state.history.map(h => h.date),
            datasets: [
-               {
-                   label: 'Valeur Totale (BTC + USDC)',
-                   data: state.history.map(h => h.total),
-                   borderColor: '#0056b3',
-                   backgroundColor: 'rgba(0, 86, 179, 0.05)',
-                   fill: true,
-                   tension: 0.3,
-                   borderWidth: 3
-               },
-               {
-                   label: 'Argent de ta poche (Injecté)',
-                   data: state.history.map(h => h.injected),
-                   borderColor: '#adb5bd',
-                   borderDash: [5, 5],
-                   fill: false,
-                   tension: 0
-               }
+               { label: 'Patrimoine (BTC+USDC)', data: state.history.map(h => h.total), borderColor: '#2c6fad', backgroundColor: 'rgba(44,111,173,0.05)', fill: true, tension: 0.3 },
+               { label: 'Investi (Sortie de poche)', data: state.history.map(h => h.injected), borderColor: '#adb5bd', borderDash: [5,5], fill: false }
            ]
        },
-       options: {
-           responsive: true,
-           maintainAspectRatio: false,
-           plugins: { legend: { position: 'bottom' } },
-           scales: {
-               y: { grid: { color: '#f1f3f5' } },
-               x: { grid: { display: false } }
-           }
-       }
+       options: { responsive: true, maintainAspectRatio: false }
    });
 }
 </script>
-
 </body>
 </html>
