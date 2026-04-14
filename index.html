@@ -1,1 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>VCA Bitcoin - Sync Firebase</title>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+   <style>
+       :root {
+           --bg: #0f1113; --card: #1a1d21; --border: #2d3136;
+           --text: #ffffff; --text-dim: #9ca3af;
+           --orange: #f59e0b; --orange-bg: rgba(245, 158, 11, 0.1);
+           --accent: #3b82f6; --green: #52c41a; --blue: #1890ff; --red: #ef4444;
+       }
+       body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
+       .container { max-width: 1000px; margin: 0 auto; }
+       .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; }
+       .sync-status { font-size: 10px; padding: 4px 8px; border-radius: 10px; background: #262a30; }
+       .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+       .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+       .field { display: flex; flex-direction: column; }
+       .field label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px; font-weight: bold; }
+       input { background: #262a30; border: 1px solid var(--border); border-radius: 6px; padding: 10px; color: white; font-size: 14px; }
+       .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+       .stat-card { background: #262a30; border: 1px solid var(--border); padding: 12px; border-radius: 10px; text-align: center; }
+       .stat-val { font-family: monospace; font-size: 15px; font-weight: bold; }
+       .orange-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+       .orange-card { background: var(--orange-bg); border: 1px solid var(--orange); padding: 10px; border-radius: 8px; text-align: center; font-size: 13px; }
+       .btn-main { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
+       .chart-container { height: 250px; margin-top: 10px; }
+       table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 15px; }
+       th { text-align: left; padding: 8px; color: var(--text-dim); border-bottom: 1px solid var(--border); }
+       td { padding: 8px; border-bottom: 1px solid var(--border); }
+   </style>
+</head>
+<body>
 
+<div class="container">
+   <div class="header">
+       <h1>VCA Cloud ☁️</h1>
+       <div id="status" class="sync-status">Connexion...</div>
+   </div>
+
+   <div class="stats-grid">
+       <div class="stat-card"><div label style="font-size: 9px; color:var(--text-dim)">BTC TOTAL</div><div class="stat-val" id="s-btc" style="color:var(--green)">0</div></div>
+       <div class="stat-card"><div label style="font-size: 9px; color:var(--text-dim)">PATRIMOINE</div><div class="stat-val" id="s-val">0 $</div></div>
+       <div class="stat-card"><div label style="font-size: 9px; color:var(--text-dim)">RÉSERVE USDC</div><div class="stat-val" id="s-usdc">0 $</div></div>
+       <div class="stat-card"><div label style="font-size: 9px; color:var(--text-dim)">TOTAL INVESTI</div><div class="stat-val" id="s-inv">0 $</div></div>
+   </div>
+
+   <div class="card">
+       <div class="input-grid">
+           <div class="field"><label>Prix BTC ($)</label><input type="number" id="m-price" placeholder="69000"></div>
+           <div class="field"><label>Cible ce mois</label><input type="number" id="m-target" value="50"></div>
+           <div class="field"><label>Dépôt (€)</label><input type="number" id="m-eur" value="50"></div>
+           <div class="field"><label>Taux (€/$)</label><input type="number" id="m-rate" value="1.085"></div>
+       </div>
+   </div>
+
+   <button class="btn-main" onclick="calculerEtSauvegarder()">Calculer & Synchroniser ✓</button>
+
+   <div class="orange-grid">
+       <div class="orange-card"><b>PRMA:</b> <span id="o-prma">0 $</span></div>
+       <div class="orange-card"><b>Taxe Due:</b> <span id="o-tax" style="color:var(--orange)">0 $</span></div>
+   </div>
+
+   <div class="card chart-container"><canvas id="vcaChart"></canvas></div>
+
+   <div class="card" style="overflow-x:auto;">
+       <table id="h-table">
+           <thead><tr><th>Mois</th><th>Prix</th><th>Action</th><th>BTC Total</th></tr></thead>
+           <tbody id="h-body"></tbody>
+       </table>
+   </div>
+</div>
+
+<script>
+   // TA CONFIGURATION FIREBASE (extraite de ton image)
+   const firebaseConfig = {
+       apiKey: "AIzaSyAtTwxz9Q2mpGq64emn2K7NTxdJOGOgmMm",
+       authDomain: "btc-vca-taxe-olivo.firebaseapp.com",
+       projectId: "btc-vca-taxe-olivo",
+       storageBucket: "btc-vca-taxe-olivo.appspot.com",
+       messagingSenderId: "882362633760",
+       appId: "1:882362633760:web:a1570521d70153d2357645"
+   };
+
+   // Initialisation
+   firebase.initializeApp(firebaseConfig);
+   const db = firebase.database();
+   let state = { btc: 0, usdc: 0, costU: 0, pvr: 0, hist: [], cumTarget: 0 };
+   let chart;
+
+   // ÉCOUTE EN TEMPS RÉEL (C'est ça qui synchronise iPhone/Mac)
+   db.ref('vca_data').on('value', (snapshot) => {
+       const data = snapshot.val();
+       if (data) {
+           state = data;
+           document.getElementById('status').innerText = "✅ Synchronisé";
+           document.getElementById('status').style.color = "var(--green)";
+           updateUI();
+       } else {
+           document.getElementById('status').innerText = "Prêt (Vide)";
+       }
+   });
+
+   function calculerEtSauvegarder() {
+       const p = parseFloat(document.getElementById('m-price').value);
+       if(!p) return alert("Indique le prix du Bitcoin");
+
+       const t = parseFloat(document.getElementById('m-target').value) || 0;
+       const eur = parseFloat(document.getElementById('m-eur').value) || 0;
+       const rate = parseFloat(document.getElementById('m-rate').value) || 1;
+
+       const pool = state.usdc + (eur * rate);
+       const diff = (state.cumTarget + t) - (state.btc * p);
+       const prma = state.btc > 0 ? state.costU / state.btc : 0;
+
+       if(diff > 0) { // ACHAT
+           state.btc += (diff / p); state.costU += diff; state.usdc = pool - diff;
+       } else { // VENTE
+           const amt = Math.abs(diff); const bSold = amt / p;
+           const gain = (p - prma) * bSold;
+           if(gain > 0) state.pvr += gain;
+           state.btc -= bSold; state.costU -= (bSold * prma); state.usdc = pool + amt;
+       }
+
+       state.cumTarget += t;
+       const date = new Date().toLocaleDateString('fr-FR', {month:'short', year:'2-digit'});
+       if(!state.hist) state.hist = [];
+       state.hist.push({ date, p, act: diff>0?'ACHAT':'VENTE', btc: state.btc, val: state.btc*p, targetT: state.cumTarget, inv: state.costU });
+
+       // ON ENVOIE SUR LE CLOUD
+       db.ref('vca_data').set(state);
+   }
+
+   function updateUI() {
+       const lastP = state.hist && state.hist.length > 0 ? state.hist[state.hist.length-1].p : 0;
+       document.getElementById('s-btc').innerText = state.btc.toFixed(6);
+       document.getElementById('s-val').innerText = (state.btc * lastP).toFixed(2) + " $";
+       document.getElementById('s-usdc').innerText = state.usdc.toFixed(2) + " $";
+       document.getElementById('s-inv').innerText = state.costU.toFixed(2) + " $";
+       document.getElementById('o-prma').innerText = (state.btc > 0 ? state.costU / state.btc : 0).toFixed(2) + " $";
+       document.getElementById('o-tax').innerText = (state.pvr * 0.314).toFixed(2) + " $";
+
+       if(state.hist) {
+           document.getElementById('h-body').innerHTML = state.hist.slice().reverse().map(h => `
+               <tr><td>${h.date}</td><td>${h.p}$</td><td>${h.act}</td><td>${h.btc.toFixed(6)}</td></tr>
+           `).join('');
+           updateChart();
+       }
+   }
+
+   function updateChart() {
+       const ctx = document.getElementById('vcaChart').getContext('2d');
+       if(chart) chart.destroy();
+       chart = new Chart(ctx, {
+           type: 'line',
+           data: {
+               labels: state.hist.map(h => h.date),
+               datasets: [
+                   { label: 'Réel', data: state.hist.map(h => h.val), borderColor: '#52c41a', tension: 0.1 },
+                   { label: 'Cible', data: state.hist.map(h => h.targetT), borderColor: '#52c41a', borderDash: [5, 5], tension: 0.1 },
+                   { label: 'Investi', data: state.hist.map(h => h.inv), borderColor: '#1890ff', tension: 0.1 }
+               ]
+           },
+           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#fff', size: 10 } } } }
+       });
+   }
+</script>
+</body>
+</html>
+
+Envoyé de mon iPhone
